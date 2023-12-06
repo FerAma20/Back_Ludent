@@ -90,17 +90,11 @@ exports.verifyUser = async function (req, res) {
     const functionname = 'verifyUser';
     try {
 
-        const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
-        console.log(fixedIV)
-
-
         const { u_email, u_password } = req.body;
-        console.log(req.body)
         const pool = await sqlDriver.getPool();
         let query = `SELECT * FROM cd_users cu 
         WHERE cu.u_email = '${u_email}'`;
         const result = await pool.request().query(query);
-
         var bytes = CryptoJS.AES.decrypt(result.recordsets[0][0].u_password, secretKey);
         var originalText = bytes.toString(CryptoJS.enc.Utf8);
         
