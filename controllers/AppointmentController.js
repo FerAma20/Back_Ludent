@@ -1,28 +1,41 @@
+var randomstring = require('randomstring');
+var moment = require('moment');
+var crypto = require('crypto-js');
+var mongoose = require('mongoose');
+const { Request, Response, NextFunction } = require('express');
+const { CustomError } = require('../types/CustomError');
 
-const { Request, Response } = require('express');
-const CryptoJS = require('crypto-js');
-
+var cybersourceRestApi = require('cybersource-rest-client');
+var path = require('path');
+var filePath = path.resolve('data/Configuration.js');
+var configuration = require(filePath);
 var responseManager = require('../managers/responseManager');
 var errorManager = require('../managers/errorManager');
+var utils = require('../managers/utilManager');
+const CONFIG = require('../config/config');
+const { encriptacion } = require('../config/config');
 const sqlDriver = require('../database/SQLDriver');
 
-const jwt = require('jsonwebtoken');
-
-const FILENAME = 'CLientsController.js';
-
-const secretKey = 'ph3VLP5ad3xlqlt5wsO';
+const FILENAME = 'AppointmentController.js';
 
 /**
  * 
  * @param {Request} req 
  * @param {Response} res 
  */
-exports.readAllClients = async function (req, res) {
+exports.readAllAppointment = async function (req, res) {
     var timeoutVoidTransactionId = Math.floor(Math.random() * (1000000000 - 1000 + 1) + 1000);
-    const functionname = 'readAllClients';
+    const functionname = 'readAllAppointment';
+
     try {
+
         const pool = await sqlDriver.getPool();
-        let query = `SELECT * FROM  clients`;
+        const currentDate = new Date();
+
+        let query = `SELECT * FROM clients
+            WHERE YEAR(c_nextappointment) = ${currentDate.getFullYear()}
+            AND MONTH(c_nextappointment) = ${currentDate.getMonth() + 1}
+            ORDER BY DAY(c_nextappointment) ASC `;
         const result = await pool.request().query(query);
         return responseManager.sendResponseWithDocument(res, {
             status: 200,
@@ -79,45 +92,6 @@ exports.deleteClient = async function (req, res) {
         return responseManager.sendResponseWithDocument(res, {
             status: 200,
             msg: 'success',
-            data: []
-        });
-    } catch (error) {
-        return errorManager.handleTransactionCatchClause(error, FILENAME, functionname, 500, res, 'Error en login');
-    }
-}
-
-exports.verifyUser = async function (req, res) {
-    const functionname = 'verifyUser';
-    try {
-
-        const fixedIV = CryptoJS.enc.Hex.parse('00000000000000000000000000000000');
-        console.log(fixedIV)
-
-
-        const { u_email, u_password } = req.body;
-        console.log(req.body)
-        const pool = await sqlDriver.getPool();
-        let query = `SELECT * FROM cd_users cu 
-        WHERE cu.u_email = '${u_email}'`;
-        const result = await pool.request().query(query);
-
-        var bytes = CryptoJS.AES.decrypt(result.recordsets[0][0].u_password, secretKey);
-        var originalText = bytes.toString(CryptoJS.enc.Utf8);
-        
-        if (originalText == u_password) {
-            const token = jwt.sign({ u_email, u_password }, secretKey, {
-                expiresIn: '16h',
-            });
-
-            return responseManager.sendResponseWithDocument(res, {
-                status: 200,
-                msg: 'success',
-                data: [{ token }]
-            });
-        }
-        return responseManager.sendResponseWithDocument(res, {
-            status: 501,
-            msg: 'error',
             data: []
         });
     } catch (error) {

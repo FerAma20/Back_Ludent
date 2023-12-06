@@ -2,10 +2,10 @@
 
 var express = require('express');
 
-const CyberSourceController = require('../controllers/CyberSourceController');
 const ProductController = require('../controllers/ProductsController');
 const ClientsController = require('../controllers/ClientsController');
-const VerifyController = require('../controllers/UsersController')
+const VerifyController = require('../controllers/UsersController');
+const AppointmentController = require('../controllers/AppointmentController');
 
 
 var router = express.Router();
@@ -16,8 +16,12 @@ router.get('/', (req, res)=> {
     res.status(200).send('exitoso')
 });
 
+//*Routas appointment APIs */
+router.get('/api/readAllAppointment', AppointmentController.readAllAppointment)
+
+
 //*Routas productos APIs */
-router.get('/epon/readAllProducts', ProductController.readAllProduct)
+router.get('/api/readAllProducts', ProductController.readAllProduct)
 
 //*Routas productos APIs */
 router.get('/api/readAllClients', ClientsController.readAllClients)

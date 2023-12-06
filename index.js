@@ -7,6 +7,9 @@ var config = require('./config/config');
 var router = require('./router/router');
 var sqlDb = require('./database/SQLDriver');
 var mongoDb = require('./database/MongoDriver');
+
+const https = require('https');
+const fs = require('fs');
 /** Variables globales */
 var app = express();
 app.disable('x-powered-by');
@@ -25,34 +28,17 @@ app.use((req, res, next)=>{
     next();
 });
 
-/** --- Conexión a BD --- */
-/*sqlDb.connection()
-.then( () => {
-           
-    mongoDb.makeConnection()
-    .then(() => {
-        app.use('/', router);
-
-        var server = app.listen(port, f => {
-            var host = server.address().address;
-            var port = server.address().port;
-            var d = new Date();
-            var utc = d.getTime() + (d.getTimezoneOffset()*60000)
-            var date = new Date(utc + (3600000*-6))
-            console.log(config.messageTerminal, 'host:'+host, 'port:'+port, 'BD:'+process.env.dbDatabaseNameMS, 'date:'+date);
-        });
-    })
-    .catch(error => {
-        console.error(error);
-    });
-})
-.catch(error => {
-    console.error(error);
-});*/
 
 app.use('/', router);
 
-var server = app.listen(port, f => {
+const options = {
+  pfx: fs.readFileSync('C:/Cart/cert.pfx'), // Ruta al archivo PFX
+  passphrase: 'TuContraseña', // Contraseña del certificado
+};
+
+const server = https.createServer(options, app);
+
+ server.listen(port, f => {
     var host = server.address().address;
     var port = server.address().port;
     var d = new Date();
