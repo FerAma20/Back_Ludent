@@ -47,14 +47,17 @@ exports.readAllAppointment = async function (req, res) {
     }
 }
 
-exports.createClient = async function (req, res) {
+exports.setAppointment = async function (req, res) {
     var timeoutVoidTransactionId = Math.floor(Math.random() * (1000000000 - 1000 + 1) + 1000);
-    const functionname = 'createClient';
+    const functionname = 'setAppointment';
     try {
-        const { c_name, c_age, c_type, c_phone, c_lastappointment, c_nextappointment } = req.body;
+        console.log('enel servicio')
+        console.log(req.body)
+        const { client_id, c_lastappointment, c_nextappointment } = req.body;
         const pool = await sqlDriver.getPool();
-        let query = `INSERT INTO clients  (c_name, c_age, c_type, c_phone, c_lastappointment, c_nextappointment) 
-            VALUES ('${c_name}', ${c_age}, ${c_type}, ${c_phone}, '${c_lastappointment}', '${c_nextappointment}')`;
+        let query = `UPDATE clients
+        SET c_lastappointment = '${c_lastappointment}', c_nextappointment = '${c_nextappointment}'
+        WHERE client_id = ${client_id}`;
         const result = await pool.request().query(query);
         return responseManager.sendResponseWithDocument(res, {
             status: 200,

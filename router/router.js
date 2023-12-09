@@ -18,6 +18,7 @@ router.get('/', (req, res)=> {
 
 //*Routas appointment APIs */
 router.get('/api/readAllAppointment', AppointmentController.readAllAppointment)
+router.put('/api/setAppointment', AppointmentController.setAppointment)
 
 
 //*Routas productos APIs */
